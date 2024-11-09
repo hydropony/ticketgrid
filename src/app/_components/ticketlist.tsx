@@ -109,6 +109,7 @@ const TicketList = () => {
         // fullname: z.string().min(1),
         // imageUrl: z.string().min(1)
         
+
             // console.log({
             //     ticket_id: selectedTicket.ticket_id,
             //     content: newComment,
@@ -117,13 +118,16 @@ const TicketList = () => {
             //     imageUrl: user!.imageUrl
             //   })
           await createCommentMutation.mutateAsync({
+
             ticket_id: selectedTicket.ticket_id,
             content: newComment,
             user_id: user!.id,
             fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
             imageUrl: user!.imageUrl
           });
-    
+          const oldcomments = comments;
+          oldcomments?.push({user_id: newcommentfromdb.user_id, comment_id: newcommentfromdb.comment_id, content: newcommentfromdb.content, fullname: newcommentfromdb.fullname, imageUrl: newcommentfromdb.imageUrl, createdAt: newcommentfromdb.createdAt.toISOString()});
+          setComments(oldcomments)
           setNewComment('');
           // Optionally refetch the comments or append the new comment directly
         //   setSelectedTicket({
@@ -254,7 +258,7 @@ const TicketList = () => {
                   <p className="mt-2">Status: {selectedTicket.status}</p>
                   <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
                   <div>
-                    <CreateUpdate ticketId={selectedTicket.ticket_id} />
+                    <CreateUpdate ticketId={selectedTicket.ticket_id} setUpdates={setUpdates} updates={updates}/>
                     <div className="flex flex-col items-center">
                       {updates?.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((update: IUpdate) => (
                         <div key={update.update_id} className="flex flex-col items-center">
@@ -274,7 +278,7 @@ const TicketList = () => {
                   <div className="flex-1 overflow-y-auto space-y-4">
                     {/* Comments Section - Scrollable */}
                     <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-                      {comments?.map((comment: IComment) => (
+                      { comments?.map((comment: IComment) => (
                         <div key={comment.comment_id} className="p-4 border-b w-full">
                           <div className="flex items-start space-x-4">
                             <img
