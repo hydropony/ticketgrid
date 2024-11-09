@@ -65,14 +65,16 @@ const TicketList = () => {
                 fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
                 imageUrl: user!.imageUrl
               })
-          await createCommentMutation.mutateAsync({
+          const newcommentfromdb = await createCommentMutation.mutateAsync({
             ticket_id: selectedTicket.ticket_id,
             content: newComment,
             user_id: user!.id,
             fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
             imageUrl: user!.imageUrl
           });
-    
+          const oldcomments = comments;
+          oldcomments?.push({user_id: newcommentfromdb.user_id, comment_id: newcommentfromdb.comment_id, content: newcommentfromdb.content, fullname: newcommentfromdb.fullname, imageUrl: newcommentfromdb.imageUrl, createdAt: newcommentfromdb.createdAt.toISOString()});
+          setComments(oldcomments)
           setNewComment('');
           // Optionally refetch the comments or append the new comment directly
         //   setSelectedTicket({
@@ -191,7 +193,7 @@ const TicketList = () => {
                   <div className="flex-1 overflow-y-auto space-y-4">
                     {/* Comments Section - Scrollable */}
                     <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-                      {comments?.map((comment: IComment) => (
+                      { comments?.map((comment: IComment) => (
                         <div key={comment.comment_id} className="p-4 border-b w-full">
                           <div className="flex items-start space-x-4">
                             <img
