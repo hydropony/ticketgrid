@@ -58,7 +58,7 @@ const TicketList = () => {
     // const { data, isLoading, isError, error } = api.ticket.getLatestWithFavorites.useQuery({userId: user?.id.toString()});
     
     const { data, isLoading, isError, error } = api.ticket.getLatestWithFavorites.useQuery(
-      { userId: user?.id || "" },
+      { userId: user?.id ?? "" },
       {
         enabled: isLoaded && !!user?.id, // Only run when `user.id` is defined and `useUser` is fully loaded
       }
@@ -195,9 +195,15 @@ const TicketList = () => {
                 <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
                 <button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation(); // Prevents modal from opening when toggling favorite
-                    toggleFavorite(ticket.ticket_id);
+                    
+                    try {
+                      await toggleFavorite(ticket.ticket_id);
+                    } catch (error) {
+                      console.error("Error toggling favorite:", error);
+                    }
+                    // toggleFavorite(ticket.ticket_id);
                   }}
                   className='text-2xl'
                 >
