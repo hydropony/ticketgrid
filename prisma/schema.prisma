@@ -16,9 +16,35 @@ model Ticket {
     content String
     status String
     user_id String
+    fullname String
+    imageUrl String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    updates Update[]
+    comments Comment[]
 }
+
+
+model Update {
+    update_id Int @id @default(autoincrement())
+    ticket_id Int
+    createdAt DateTime @default(now())
+    content String
+    status String
+    Ticket Ticket @relation(fields: [ticket_id], references: [ticket_id])
+}
+
+model Comment {
+    comment_id Int @id @default(autoincrement())
+    ticket_id Int
+    user_id String
+    fullname String
+    imageUrl String
+    content String
+    createdAt DateTime @default(now())
+    ticket    Ticket @relation(fields: [ticket_id], references: [ticket_id])
+}
+
 
 // model PublicMessages {
 //     message_id Int @id @default(autoincrement())
