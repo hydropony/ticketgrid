@@ -128,7 +128,7 @@ const TicketList = () => {
   
     return (
       <div className="px-4 sm:px-6 lg:px-8">
-        <button onClick={refetchData}>Refetch</button>
+        {/* <button onClick={refetchData}>Refetch</button> */}
         <h2 className="text-2xl font-bold mb-4">Tickets</h2>
         {tickets.length === 0 ? (
           <p>No tickets found.</p>
