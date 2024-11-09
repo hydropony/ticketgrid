@@ -23,11 +23,14 @@ const CreateTicketPage = () => {
     }
 
     try {
+
       // Call the mutation to create the ticket
       await createTicketMutation.mutateAsync({
         title,
         content,
-        user_id: user?.id || '',  // Use Clerk's user ID
+        user_id: user?.id ?? '',
+        fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
+        imageUrl: user?.imageUrl
       });
       alert('Ticket created successfully!');
     } catch (error) {
