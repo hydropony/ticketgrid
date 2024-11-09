@@ -6,9 +6,6 @@ import { useUser } from "@clerk/nextjs";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
-import Link from 'next/link';
-
-import CreateTicketPage from "./create-ticket/page";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import NavBar from "./_components/navbar";
@@ -30,7 +27,6 @@ export default function RootLayout({
       <html lang="en" className={`${GeistSans.variable}`}>
         <body>
           <NavBar />
-          {/* <MyComponent /> */}
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>
       </html>
