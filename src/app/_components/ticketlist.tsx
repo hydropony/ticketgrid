@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';  // Import trpc hook
 import { useUser } from '@clerk/clerk-react'; // Import useUser hook from Clerk
 import Update from './update'
+import CreateUpdate from './createupdate';
 
 interface IComment {
   comment_id: number;
@@ -170,6 +171,7 @@ const TicketList = () => {
                   <p className="mt-2">Status: {selectedTicket.status}</p>
                   <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
                   <div>
+                   <CreateUpdate />
                     {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
                       <Update key={update.update_id} description={update.content} date={update.createdAt.toString()} status={update.status} />
                       ))}
