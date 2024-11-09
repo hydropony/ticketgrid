@@ -7,6 +7,7 @@ import { api } from "~/trpc/react";
 
 interface CreateUpdateProps {
     ticketId: number;
+
 }
   
 
@@ -16,6 +17,8 @@ const CreateUpdate: React.FC<CreateUpdateProps> = ({ ticketId }) => {
   const [description, setDescription] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const createUpdateMutation = api.update.create.useMutation();
+
+  const updateTicketStatusMutation = api.ticket.updateStatus.useMutation(); 
 
   if (!user?.publicMetadata?.isAdmin) {
     return null;
@@ -33,14 +36,23 @@ const CreateUpdate: React.FC<CreateUpdateProps> = ({ ticketId }) => {
     if (!description || !status) return;
 
     try {
-      await createUpdateMutation.mutateAsync({
-        ticket_id: ticketId,
-        content: description,
-        status,
-      });
-      setDescription('');
-      setStatus('');
-      // Optionally, trigger a refetch of updates or update the state
+        await createUpdateMutation.mutateAsync({
+            ticket_id: ticketId,
+            content: description,
+            status,
+        });
+
+        
+
+        await updateTicketStatusMutation.mutateAsync({
+            ticket_id: ticketId,
+            newStatus: status
+        })
+
+        setDescription('');
+        setStatus('');
+
+        // Optionally, trigger a refetch of updates or update the state
     } catch (error) {
       console.error('Error creating update:', error);
     }
