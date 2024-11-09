@@ -27,7 +27,7 @@ export const ticketRouter = createTRPCRouter({
   getLatest: publicProcedure.query(async ({ ctx }) => {
     const tickets = await ctx.db.ticket.findMany({
       orderBy: { createdAt: "desc" },
-      include: { comments: true }
+      include: { comments: true, updates: true }
     });
 
     return tickets ?? [];
@@ -37,6 +37,7 @@ export const ticketRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const ticket = await ctx.db.ticket.findUnique({
         where: { ticket_id: Number(input.ticketId) },
+        include: {comments: true, updates: true },
       });
       return ticket ?? null;
     }),
