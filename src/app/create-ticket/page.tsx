@@ -48,31 +48,41 @@ const CreateTicketPage = () => {
   }
 
   return (
-    <div className='columns-1'>
-
-      <form onSubmit={handleSubmit}>
-        <div className=''>
-          <label>Title:</label>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-black-800">Create a New Ticket</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-black-700">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            className="mt-1 block w-full px-3 py-2 border border-grey-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-black-500 sm:text-sm"
+            placeholder="Enter ticket title"
           />
         </div>
         <div>
-          <label>Content:</label>
+          <label className="block text-sm font-medium text-black-700">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
+            className="mt-1 block w-full px-3 py-2 border border-grey-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-grey-100 sm:text-sm"
+            rows={4}
+            placeholder="Enter ticket content"
           />
         </div>
-        <button type="submit">Create ticket</button>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          Create Ticket
+        </button>
       </form>
-
-    </div>  
+    </div>
   );
+
 };
 
 export default CreateTicketPage;
