@@ -33,7 +33,7 @@ export const ticketRouter = createTRPCRouter({
       const ticket = await ctx.db.ticket.findUnique({
         where: { ticket_id: Number(input.ticketId) },
       });
-      return ticket;
+      return ticket ?? null;
     }),
 //   getById: publicProcedure
 //     .input(z.object({ ticketId: z.string() }))  // Validate ticketId parameter

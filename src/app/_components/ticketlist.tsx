@@ -1,12 +1,13 @@
 "use client";
 
+import { Ticket } from '@prisma/client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';  // Import trpc hook
 
 
 const TicketList = () => {
-    const [tickets, setTickets] = useState<any[]>([]);
+    const [tickets, setTickets] = useState<Ticket[]>([]);
     const { data, isLoading, isError, error } = api.ticket.getLatest.useQuery();
   
     // You can handle the tickets state or show loading/error states
