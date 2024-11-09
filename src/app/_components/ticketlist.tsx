@@ -1,11 +1,21 @@
+
 "use client";
 
-import { Ticket } from '@prisma/client';
+import { Ticket, Comment } from '@prisma/client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';  // Import trpc hook
 import { useUser } from '@clerk/clerk-react'; // Import useUser hook from Clerk
 
+
+interface IComment {
+  comment_id: number;
+  user_id: string;
+  fullname: string;
+  content: string;
+  imageUrl: string;
+  createdAt: string;
+}
 
 
 const TicketList = () => {
@@ -17,6 +27,7 @@ const TicketList = () => {
 
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [comments, setComments] = useState<IComment[] | null>([]);
     const [newComment, setNewComment] = useState('');
 
     const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,6 +90,10 @@ const TicketList = () => {
 
     const openModal = (ticket: Ticket) => {
         setSelectedTicket(ticket);
+        // @ts-expect-error: just forget about it
+        setComments(ticket.comments as IComment[] | null);
+        // console.log("lol", ticket)
+        console.log(comments)
         setIsModalOpen(true);
     };
 
@@ -93,7 +108,7 @@ const TicketList = () => {
     if (isError) return <div className="text-center p-4 text-red-500">Error: {error?.message}</div>;
   
     return (
-        <div className=" px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-bold mb-4">Tickets</h2>
         {tickets.length === 0 ? (
           <p>No tickets found.</p>
@@ -105,8 +120,7 @@ const TicketList = () => {
                 className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 onClick={() => openModal(ticket)}
               >
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}
-              </h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">{ticket.content}</p>
                 <div className="text-sm text-gray-500">
                   <p>Status: <span className="font-medium text-gray-800">{ticket.status}</span></p>
@@ -116,86 +130,84 @@ const TicketList = () => {
             ))}
           </div>
         )}
-
+  
         {isModalOpen && selectedTicket && (
-            
-                    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
-
-                    <div className="bg-white rounded-lg shadow-lg w-full h-full max-w-none  overflow-y-auto">
-                    
-                      <div className="grid grid-cols-3  h-full">
-                      <button
-                        onClick={closeModal}
-                        className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-3xl"
-                      >
-                        &times;
-                      </button>
-                        {/* Left section (2/3 of the modal) */}
-                        <div className="col-span-2 flex flex-col  pl-20 pt-20 overflow-y-auto">
-                        {selectedTicket.imageUrl && (
-                            <div className="flex items-center space-x-4">
+          <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-lg w-full h-full max-w-full overflow-hidden flex flex-col">
+              <button
+                onClick={closeModal}
+                className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-3xl z-50"
+              >
+                &times;
+              </button>
+  
+              <div className="flex-1 flex overflow-hidden">
+                {/* Left section (Ticket details) */}
+                <div className="w-2/3 p-8 overflow-y-auto">
+                  {selectedTicket.imageUrl && (
+                    <div className="flex items-center space-x-4">
+                      <img
+                        className="rounded-full w-10 h-10 object-cover"
+                        src={selectedTicket.imageUrl}
+                        alt={selectedTicket.fullname}
+                      />
+                      <h3 className="text-xl font-medium">{selectedTicket.fullname}</h3>
+                    </div>
+                  )}
+  
+                  <h2 className="mt-4 text-3xl font-semibold">{selectedTicket.title}</h2>
+                  <p className="mt-4">{selectedTicket.content}</p>
+                  <p className="mt-2">Status: {selectedTicket.status}</p>
+                  <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
+                </div>
+  
+                {/* Right section (Comments and Input) */}
+                <div className="w-1/3 flex flex-col bg-gray-100">
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    {/* Comments Section - Scrollable */}
+                    <div className="space-y-4 max-h-[80vh] overflow-y-auto">
+                      {comments?.map((comment: IComment) => (
+                        <div key={comment.comment_id} className="p-4 border-b w-full">
+                          <div className="flex items-start space-x-4">
                             <img
-                            className="rounded-full w-10 h-10 object-cover"
-                            src={selectedTicket.imageUrl}
-                            alt={selectedTicket.fullname}
+                              src={comment.imageUrl}
+                              className="rounded-full w-10 h-10"
+                              alt={comment.fullname}
                             />
-                            <h3 className="text-xl font-medium">{selectedTicket.fullname}</h3> {/* Use title as a placeholder for username */}
-                        </div>
-                        )}
-
-                            <h2 className="mt-4 text-3xl font-semibold ">{selectedTicket.title}</h2>
-                            <p className="mt-4">{selectedTicket.content}</p>
-                            <p className="mt-2">Status: {selectedTicket.status}</p>
-                            <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
-                        </div>
-          
-                        {/* Right section (1/3 of the modal) */}
-                        {/* <div className="col-span-1 flex flex-col items-center justify-center bg-gray-100">
-                            chat
-                        </div> */}
-                        <div className="col-span-1 flex flex-col items-center justify-center bg-gray-100">
-                                {/* Comments Section */}
-                                <div className="overflow-y-auto max-h-[400px]">
-                                    {/* {selectedTicket.comments?.map((comment) => (
-                                        <div key={comment.createdAt} className="p-4 border-b">
-                                            <div className="flex items-center space-x-4">
-                                                <img
-                                                    src={comment.user.profileImageUrl || '/default-avatar.jpg'}
-                                                    alt={comment.user.name}
-                                                    className="rounded-full w-10 h-10"
-                                                />
-                                                <div>
-                                                    <p className="font-medium">{comment.user.name}</p>
-                                                    <p className="text-sm text-gray-500">{comment.content}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))} */}
-                                </div>
-                                {/* New Comment Input */}
-                                <div className="p-4">
-                                    <input
-                                        type="text"
-                                        value={newComment}
-                                        onChange={handleCommentChange}
-                                        className="w-full p-2 border rounded"
-                                        placeholder="Write a comment..."
-                                    />
-                                    <button
-                                        onClick={handleCommentSubmit}
-                                        className="mt-2 w-full bg-blue-500 text-white py-2 rounded"
-                                    >
-                                        Submit Comment
-                                    </button>
-                                </div>
+                            <div className="flex-1">
+                              <p className="font-medium">{comment.fullname}</p>
+                              <p className="text-sm text-gray-500">{comment.content}</p>
                             </div>
-                      </div>
-          
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
+  
+                  {/* Comment Input Box (Fixed at the bottom) */}
+                  <div className="p-4 border-t bg-white">
+                    <input
+                      type="text"
+                      value={newComment}
+                      onChange={handleCommentChange}
+                      className="w-full p-2 border rounded"
+                      placeholder="Write a comment..."
+                    />
+                    <button
+                      onClick={handleCommentSubmit}
+                      className="mt-2 w-full bg-blue-500 text-white py-2 rounded"
+                    >
+                      Submit Comment
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     );
+  
   };
   
   export default TicketList;
