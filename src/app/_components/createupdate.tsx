@@ -6,11 +6,13 @@ import { api } from "~/trpc/react";
 
 
 interface CreateUpdateProps {
-    ticketId: number;
+    ticketId: number,
+    updates: any,
+    setUpdates: any
 }
   
 
-const CreateUpdate: React.FC<CreateUpdateProps> = ({ ticketId }) => {
+const CreateUpdate: React.FC<CreateUpdateProps> = ({ ticketId, updates, setUpdates }) => {
   const { user } = useUser();
 
   const [description, setDescription] = useState<string>('');
@@ -33,11 +35,12 @@ const CreateUpdate: React.FC<CreateUpdateProps> = ({ ticketId }) => {
     if (!description || !status) return;
 
     try {
-      await createUpdateMutation.mutateAsync({
+      const newupdate = await createUpdateMutation.mutateAsync({
         ticket_id: ticketId,
         content: description,
         status,
       });
+      setUpdates([...updates, newupdate]);
       setDescription('');
       setStatus('');
       // Optionally, trigger a refetch of updates or update the state

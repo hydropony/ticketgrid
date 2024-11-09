@@ -171,7 +171,7 @@ const TicketList = () => {
                   <p className="mt-2">Status: {selectedTicket.status}</p>
                   <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
                   <div>
-                    <CreateUpdate ticketId={selectedTicket.ticket_id} />
+                    <CreateUpdate ticketId={selectedTicket.ticket_id} setUpdates={setUpdates} updates={updates}/>
                     <div className="flex flex-col items-center">
                       {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
                         <div key={update.update_id} className="flex flex-col items-center">
