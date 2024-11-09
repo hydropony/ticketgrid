@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';  // Import trpc hook
 import { useUser } from '@clerk/clerk-react'; // Import useUser hook from Clerk
-
+import Update from './update'
 
 interface IComment {
   comment_id: number;
@@ -14,6 +14,13 @@ interface IComment {
   fullname: string;
   content: string;
   imageUrl: string;
+  createdAt: string;
+}
+
+interface IUpdate {
+  update_id: number;
+  content: string;
+  status: string;
   createdAt: string;
 }
 
@@ -28,6 +35,7 @@ const TicketList = () => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [comments, setComments] = useState<IComment[] | null>([]);
+    const [updates, setUpdates] = useState<IUpdate[] | null>([]);
     const [newComment, setNewComment] = useState('');
 
     const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,8 +100,10 @@ const TicketList = () => {
         setSelectedTicket(ticket);
         // @ts-expect-error: just forget about it
         setComments(ticket.comments as IComment[] | null);
+        // @ts-expect-error: just forget about it too
+        setUpdates(ticket.updates as IUpdate[] | null); 
+        console.log(ticket)
         // console.log("lol", ticket)
-        console.log(comments)
         setIsModalOpen(true);
     };
 
@@ -159,6 +169,11 @@ const TicketList = () => {
                   <p className="mt-4">{selectedTicket.content}</p>
                   <p className="mt-2">Status: {selectedTicket.status}</p>
                   <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
+                  <div>
+                    {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
+                      <Update key={update.update_id} description={update.content} date={update.createdAt.toString()} status={update.status} />
+                      ))}
+                  </div>
                 </div>
   
                 {/* Right section (Comments and Input) */}
