@@ -32,7 +32,7 @@ const TicketList = () => {
                 className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                <Link href={`/ticket/${ticket.ticket_id}`}>{ticket.title}</Link>
+                <Link href={`/ticket/${ticket.ticket_id}`} passHref>{ticket.title}</Link>
               </h3>
                 <p className="text-gray-600 text-sm mb-4">{ticket.content}</p>
                 <div className="text-sm text-gray-500">

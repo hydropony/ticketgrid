@@ -18,7 +18,7 @@ export default async function Home() {
   return (
     <HydrateClient>
       <main>
-        <NavBar />
+        {/* <NavBar /> */}
         <TicketList />
       </main>
     </HydrateClient>

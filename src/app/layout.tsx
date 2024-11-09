@@ -8,6 +8,7 @@ import { type Metadata } from "next";
 
 
 import { TRPCReactProvider } from "~/trpc/react";
+import NavBar from "./_components/navbar";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -25,6 +26,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable}`}>
         <body>
+          <NavBar />
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>
       </html>
