@@ -13,7 +13,7 @@ export default async function Home() {
   return (
     <HydrateClient>
       <main>
-        hello!!
+        hello!!!
         {tickets.map((ticket) => ticket.name)}
       </main>
     </HydrateClient>
