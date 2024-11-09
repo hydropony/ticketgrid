@@ -10,6 +10,34 @@ datasource db {
     url      = env("POSTGRES_URL")
 }
 
+model Ticket {
+    ticket_id Int @id @default(autoincrement())
+    title String
+    content String
+    status String
+    user_id String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+// model PublicMessages {
+//     message_id Int @id @default(autoincrement())
+//     ticket_id Int
+//     user_id Int
+//     content String
+//     created_at DateTime @default(now())
+// }
+
+// model PrivateMessages {
+//     message_id Int @id @default(autoincrement())
+//     ticket_id Int
+//     user_id Int
+//     content String
+//     created_at DateTime @default(now())
+// }
+
+
+
 model Post {
     id        Int      @id @default(autoincrement())
     name      String
