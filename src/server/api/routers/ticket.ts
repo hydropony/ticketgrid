@@ -25,6 +25,23 @@ export const ticketRouter = createTRPCRouter({
       orderBy: { createdAt: "desc" },
     });
 
-    return tickets ?? null;
+    return tickets ?? [];
   }),
+  getById: publicProcedure
+    .input(z.object({ ticketId: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const ticket = await ctx.db.ticket.findUnique({
+        where: { ticket_id: Number(input.ticketId) },
+      });
+      return ticket;
+    }),
+//   getById: publicProcedure
+//     .input(z.object({ ticketId: z.string() }))  // Validate ticketId parameter
+//     .query(async ({ ctx, input }) => {
+//       return ctx.db.ticket.findUnique({
+//         where: {
+//           ticket_id: Number(input.ticketId),  // Ensure we query by the correct ID type
+//         },
+//       });
+//     }),
 });
