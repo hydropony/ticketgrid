@@ -2,6 +2,7 @@
 "use client";
 
 import { Ticket, Comment } from '@prisma/client';
+import { useQueryClient } from "@tanstack/react-query";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';  // Import trpc hook
@@ -26,18 +27,68 @@ interface IUpdate {
 }
 
 
+interface TicketWithFavorite extends Ticket {
+  isFavorited: boolean;
+}
+
+
 const TicketList = () => {
-    const {user} = useUser(); // Use Clerk's hook to get user data
+    const { user, isLoaded, isSignedIn } = useUser();
 
-    const [tickets, setTickets] = useState<Ticket[]>([]);
-    const { data, isLoading, isError, error } = api.ticket.getLatest.useQuery();
-  
 
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+    // const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [tickets, setTickets] = useState<TicketWithFavorite[]>([]);
+    const [selectedTicket, setSelectedTicket] = useState<TicketWithFavorite | null>(null);
+    // const { data, isLoading, isError, error } = api.ticket.getTickets.useQuery();
+    const queryClient = useQueryClient();
+
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [comments, setComments] = useState<IComment[] | null>([]);
     const [updates, setUpdates] = useState<IUpdate[] | null>([]);
     const [newComment, setNewComment] = useState('');
+
+
+    // const [data, setData] = useState(null);
+    // const [data, setData] = useState<TicketWithFavorite[] | null>(null);
+    // const [isLoading, setIsLoading] = useState(false);
+    // const [error, setError] = useState<string | null>(null);
+
+    // const { data, isLoading, isError, error } = api.ticket.getLatestWithFavorites.useQuery({userId: user?.id.toString()});
+    
+    const { data, isLoading, isError, error } = api.ticket.getLatestWithFavorites.useQuery(
+      { userId: user?.id ?? "" },
+      {
+        enabled: isLoaded && !!user?.id, // Only run when `user.id` is defined and `useUser` is fully loaded
+      }
+    );
+
+    // const { data, isLoading, isError, error } = api.ticket.getLatestWithFavorites.useQuery(
+    //   { userId: user?.id || "" },
+    //   { enabled: !!user } // Only run query if user is available
+    // );
+
+    // const fetchData = async () => {
+    //   setIsLoading(true);
+    //   setError(null);
+  
+    //   try {
+    //     // Create a caller instance to fetch data imperatively
+    //     const caller = api.ticket.getLatestWithFavorites.createCaller();
+    //     const response = await caller({ userId: user?.id || "" });
+    //     setData(response || []); // Update data state with the fetched response or an empty array
+    //   } catch (err) {
+    //     setError("Failed to fetch data");
+    //     console.error("Error fetching data:", err);
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
+  
+
+
+    const toggleFavoriteMutation = api.ticket.toggleFavorite.useMutation();
 
     const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewComment(e.target.value);
@@ -58,14 +109,16 @@ const TicketList = () => {
         // fullname: z.string().min(1),
         // imageUrl: z.string().min(1)
         
-            console.log({
-                ticket_id: selectedTicket.ticket_id,
-                content: newComment,
-                user_id: user!.id,
-                fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
-                imageUrl: user!.imageUrl
-              })
-          const newcommentfromdb = await createCommentMutation.mutateAsync({
+
+            // console.log({
+            //     ticket_id: selectedTicket.ticket_id,
+            //     content: newComment,
+            //     user_id: user!.id,
+            //     fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
+            //     imageUrl: user!.imageUrl
+            //   })
+          await createCommentMutation.mutateAsync({
+
             ticket_id: selectedTicket.ticket_id,
             content: newComment,
             user_id: user!.id,
@@ -98,8 +151,18 @@ const TicketList = () => {
       }
     }, [data]);
 
+    const toggleFavorite = async (ticketId: number) => {
+      if (!user) return;
+      await toggleFavoriteMutation.mutateAsync({
+        ticketId,
+        userId: user.id,
+      });
 
-    const openModal = (ticket: Ticket) => {
+
+    };
+
+
+    const openModal = (ticket: TicketWithFavorite) => {
         setSelectedTicket(ticket);
         // @ts-expect-error: just forget about it
         setComments(ticket.comments as IComment[] | null);
@@ -133,6 +196,28 @@ const TicketList = () => {
                 className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 onClick={() => openModal(ticket)}
               >
+                <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation(); // Prevents modal from opening when toggling favorite
+                    
+                    try {
+                      await toggleFavorite(ticket.ticket_id);
+                    } catch (error) {
+                      console.error("Error toggling favorite:", error);
+                    }
+                    // toggleFavorite(ticket.ticket_id);
+                  }}
+                  className='text-2xl'
+                >
+                  {ticket.isFavorited ? (
+                    <span className="text-yellow-500">★</span> // Filled star for favorited
+                  ) : (
+                    <span className="text-gray-300">☆</span> // Outline star for not favorited
+                  )}
+                </button>
+              </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">{ticket.content}</p>
                 <div className="text-sm text-gray-500">
@@ -175,7 +260,7 @@ const TicketList = () => {
                   <div>
                     <CreateUpdate ticketId={selectedTicket.ticket_id} setUpdates={setUpdates} updates={updates}/>
                     <div className="flex flex-col items-center">
-                      {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
+                      {updates?.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((update: IUpdate) => (
                         <div key={update.update_id} className="flex flex-col items-center">
                           <Update key={update.update_id} description={update.content} date={update.createdAt.toString()} status={update.status} />
                           <svg key={1000 - update.update_id} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 mt-2">

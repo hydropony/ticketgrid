@@ -5,14 +5,29 @@ import { auth } from '@clerk/nextjs/server';
 import { useUser } from '@clerk/nextjs';  // Import the Clerk hook
 import { useState } from 'react';
 import { api } from '~/trpc/react';  // Import the trpc hook
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CreateTicketPage = () => {
   const { user, isLoaded, isSignedIn } = useUser(); // Clerk hook to get user data
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const router = useRouter(); // Initialize the router
+  const queryClient = useQueryClient(); // Initialize query client
+
 
   // Get the mutate function for creating a ticket
-  const createTicketMutation = api.ticket.create.useMutation();
+  const createTicketMutation = api.ticket.create.useMutation({
+    onSuccess: () => {
+      // queryClient.invalidateQueries(api.ticket.getTickets.getQueryKey());
+      router.push('/');
+    },
+    onError: (error) => {
+      // Optionally handle errors here
+      console.error('Error creating ticket:', error);
+      alert('Failed to create ticket');
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +47,6 @@ const CreateTicketPage = () => {
         fullname: (user?.firstName ?? '') + " " + (user?.lastName ?? ''),
         imageUrl: user?.imageUrl
       });
-      alert('Ticket created successfully!');
     } catch (error) {
       console.error('Error creating ticket:', error);
       alert('Failed to create ticket');

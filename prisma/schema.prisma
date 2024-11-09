@@ -22,6 +22,7 @@ model Ticket {
     updatedAt DateTime @updatedAt
     updates Update[]
     comments Comment[]
+    favorites Favorite[]
 }
 
 
@@ -45,6 +46,13 @@ model Comment {
     ticket    Ticket @relation(fields: [ticket_id], references: [ticket_id])
 }
 
+model Favorite {
+  favorite_id Int     @id @default(autoincrement())
+  userId      String
+  ticketId    Int
+  ticket      Ticket  @relation(fields: [ticketId], references: [ticket_id], onDelete: Cascade)
+  @@unique([userId, ticketId]) // Ensure each user can only favorite a ticket once
+}
 
 // model PublicMessages {
 //     message_id Int @id @default(autoincrement())
