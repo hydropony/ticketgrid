@@ -171,10 +171,18 @@ const TicketList = () => {
                   <p className="mt-2">Status: {selectedTicket.status}</p>
                   <p className="mt-2">Created at: {new Date(selectedTicket.createdAt).toLocaleString()}</p>
                   <div>
-                   <CreateUpdate />
-                    {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
-                      <Update key={update.update_id} description={update.content} date={update.createdAt.toString()} status={update.status} />
-                      ))}
+                    <CreateUpdate ticketId={selectedTicket.ticket_id} />
+                    <div className="flex flex-col items-center">
+                      {updates?.sort((a,b) => new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime()).map((update: IUpdate) => (
+                        <div key={update.update_id} className="flex flex-col items-center">
+                          <Update key={update.update_id} description={update.content} date={update.createdAt.toString()} status={update.status} />
+                          <svg key={1000 - update.update_id} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 mt-2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18" />
+                          </svg>
+                        </div>
+                        ))}
+                      <Update key={228} status='Submitted' date={selectedTicket.createdAt.toString()} description='Request submitted'></Update>
+                    </div>
                   </div>
                 </div>
   
