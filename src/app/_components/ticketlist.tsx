@@ -31,6 +31,12 @@ const TicketList = () => {
 
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const { data, isLoading, isError, error } = api.ticket.getLatest.useQuery();
+
+    const refetchData = () => {
+      const { data, isLoading, isError, error } = api.ticket.getLatest.useQuery();
+      
+      // return { data, isLoading, isError, error }
+    }
   
 
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -122,6 +128,7 @@ const TicketList = () => {
   
     return (
       <div className="px-4 sm:px-6 lg:px-8">
+        <button onClick={refetchData}>Refetch</button>
         <h2 className="text-2xl font-bold mb-4">Tickets</h2>
         {tickets.length === 0 ? (
           <p>No tickets found.</p>

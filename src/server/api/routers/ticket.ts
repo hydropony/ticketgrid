@@ -41,6 +41,24 @@ export const ticketRouter = createTRPCRouter({
       });
       return ticket ?? null;
     }),
+    updateStatus: publicProcedure
+    .input(
+      z.object({
+        ticket_id: z.number().int().positive(),
+        newStatus: z.string().min(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { ticket_id, newStatus } = input;
+
+      // Update the ticket's status
+      const updatedTicket = await ctx.db.ticket.update({
+        where: { ticket_id },
+        data: { status: newStatus },
+      });
+
+      return updatedTicket;
+    }),
 //   getById: publicProcedure
 //     .input(z.object({ ticketId: z.string() }))  // Validate ticketId parameter
 //     .query(async ({ ctx, input }) => {
